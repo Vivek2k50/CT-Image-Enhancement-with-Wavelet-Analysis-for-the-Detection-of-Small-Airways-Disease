@@ -1,0 +1,55 @@
+clc;
+clear;
+close all;
+
+%% HYBRID FILTERING
+
+I=imread("C:\Users\anand\OneDrive\Desktop\ct.jpeg");
+figure
+subplot(231); imshow(I); title('original image');
+
+SE=strel('disk',5);
+E1=imerode(I,SE);
+subplot(232); imshow(E1); title('eroded image');
+
+D1=imdilate(I,SE);
+subplot(233); imshow(D1); title('dilated image');
+
+ED1= imdilate(E1,SE);
+subplot(234); imshow(ED1); title('dilation of erosion');
+
+%% WAVELET TRANSFORMATION AND ITS COEFFICIENTS
+
+figure
+subplot(231); imagesc(ED1); title('dilation of erosion image');
+colormap gray
+[cA,cH,cV,cD] = dwt2(ED1,'sym4','mode','per');
+subplot(232); imagesc(cA); title('Approximation Coefficient');
+subplot(233); imagesc(cH); title('Horizontal Coefficient');
+subplot(234); imagesc(cV); title('Vertical Coefficient');
+subplot(235); imagesc(cD); title('Diagonal Coefficient');
+%% WAVELET DECOMPOSITION AND RECONSTRUCTION
+
+wv='sym4';
+[c,s]=wavedec2(ED1,2,wv);
+EDrec=waverec2(c,s,wv);
+figure
+subplot(221); imagesc(ED1); title('Required image');
+colormap gray
+subplot(222); imagesc(c);title('decomposition vector');
+subplot(223); imagesc(s);title('bookkeeping mattrix');
+subplot(224); imagesc(EDrec); title('Reconstructed Image');
+%% IMAGE QUALITY MATTRICES
+
+a=niqe(ED1);
+disp(['NIQE of ED1: ',num2str(a)]);
+b=niqe(EDrec);
+disp(['NIQE of EDrec: ',num2str(b)]);
+a=piqe(ED1);
+disp(['PIQE of ED1: ',num2str(a)]);
+b=piqe(EDrec);
+disp(['PIQE of EDrec: ',num2str(b)]);
+a=brisque(ED1);
+disp(['BRISQUE of ED1: ',num2str(a)]);
+b=brisque(EDrec);
+disp(['BRISQUE of EDrec: ',num2str(b)]);
